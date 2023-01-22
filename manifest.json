@@ -1,0 +1,32 @@
+{
+    "manifest_version": 2,
+    "name": "ShiftJuggler Current Hours",
+    "description": "Counts all hours for the current ShiftJuggler timespan.",
+    "version": "1.0.0",
+    "icons": {
+      "64": "icons/shiftjuggler_hours.png"
+    },
+    "background": {
+      "scripts": ["hours_script.js"]
+    },
+    "browser_specific_settings": {
+      "gecko": {
+        "id": "kochjohannes98@gmail.com"
+      }
+    },
+    "page_action": {
+      "default_icon": "icons/off.svg",
+      "browser_style": true
+    },
+    "permissions": [
+      "activeTab",
+      "tabs",
+      "contextMenus"
+    ],
+    "content_scripts": [],
+    "browser_action": {
+      "default_icon": {
+        "64": "icons/shiftjuggler_hours.png"
+      }
+    }
+}
