@@ -8,6 +8,9 @@ function showHoursInfo(request, sender, sendResponse) {
   let tables = document.getElementsByTagName('table');
   let tableRows = document.getElementsByTagName('tbody');
 
+  // extensions.sdk.console.logLevel = all // about:config
+  // xpinstall.signatures.required = false // about:config
+
   let workdays = 0;
   for (let i = 0; i < tableRows.length; i++) {
     if (tableRows[i].children.length > 2) {
