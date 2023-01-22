@@ -4,8 +4,9 @@ browser.contextMenus.create({
 });
 
 function messageTab(tabs) {
+  let message = "TEST123";
   browser.tabs.sendMessage(tabs[0].id, {
-    replacement: "55 hours total!"
+    replacement: message
   });
 }
 

@@ -1,5 +1,34 @@
 
+function strip(string) {
+  return string.replace(/[0]+$/g, '');
+}
+
 function showHoursInfo(request, sender, sendResponse) {
+  let totalHours = 0.0;
+  let tables = document.getElementsByTagName('table');
+  let tableRows = document.getElementsByTagName('tbody');
+
+  let workdays = 0;
+  for (let i = 0; i < tableRows.length; i++) {
+    if (tableRows[i].children.length > 2) {
+      let resultData = tableRows[i].children[2];
+      if (resultData.children.length > 5) {
+        let finalHoursTxt = resultData.children[5].innerHTML;
+        let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
+        //let finalHours = 1.1533; // testing
+        totalHours += finalHours;
+        workdays += 1;
+      }
+    }
+  }
+
+  let averageHours = totalHours / workdays;
+
+  let message =
+    "You have " + strip(totalHours.toFixed(3)) + " hours in total" +
+    " | " + workdays.toString() + " days" +
+    " | " + strip(averageHours.toFixed(3)) + " hours in average";
+
   let viewItemCreateButton = document.getElementById('view-item-create-button');
   viewItemCreateButton.style.position = 'relative';
   viewItemCreateButton.setAttribute("class", "col-md-4");
@@ -9,7 +38,8 @@ function showHoursInfo(request, sender, sendResponse) {
 
   let hourInfoElement = document.createElement('h2');
   hourInfoElement.style = "margin-top: 10px;";
-  hourInfoElement.textContent = request.replacement;
+  //hourInfoElement.textContent = request.replacement;
+  hourInfoElement.textContent = message;
   hourContainer.appendChild(hourInfoElement);
 
   viewItemCreateButton.parentNode.appendChild(hourContainer);
