@@ -1,2 +1,5 @@
 # xpi packages
 *.xpi
+
+# ignore .bak files
+*.bak
