@@ -1,6 +1,6 @@
 
 function strip(string) {
-  return string.replace(/[0]+$/g, '');
+  return string.replace(/[0.,]+$/g, '');
 }
 
 function showHoursInfo(request, sender, sendResponse) {
@@ -18,7 +18,6 @@ function showHoursInfo(request, sender, sendResponse) {
       if (resultData.children.length > 5) {
         let finalHoursTxt = resultData.children[5].innerHTML;
         let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
-        //let finalHours = 1.1533; // testing
         totalHours += finalHours;
         workdays += 1;
       }
