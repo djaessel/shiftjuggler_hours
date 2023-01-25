@@ -35,16 +35,22 @@ function showHoursInfo(request, sender, sendResponse) {
   viewItemCreateButton.style.position = 'relative';
   viewItemCreateButton.setAttribute("class", "col-md-4");
 
-  let hourContainer = document.createElement('div');
-  hourContainer.setAttribute("class", "col-md-4");
+  let hourE = document.getElementById('shiftjuggler-hours-id');
+  if (!hourE) {
+    let hourContainer = document.createElement('div');
+    hourContainer.setAttribute("class", "col-md-4");
 
-  let hourInfoElement = document.createElement('h2');
-  hourInfoElement.style = "margin-top: 10px;";
-  //hourInfoElement.textContent = request.replacement;
-  hourInfoElement.textContent = message;
-  hourContainer.appendChild(hourInfoElement);
+    let hourInfoElement = document.createElement('h2');
+    hourInfoElement.setAttribute("id", "shiftjuggler-hours-id");
+    hourInfoElement.style = "margin-top: 10px;";
+    //hourInfoElement.textContent = request.replacement;
+    hourInfoElement.textContent = message;
+    hourContainer.appendChild(hourInfoElement);
 
-  viewItemCreateButton.parentNode.appendChild(hourContainer);
+    viewItemCreateButton.parentNode.appendChild(hourContainer);
+  } else {
+    hourE.textContent = message;
+  }
 }
 
 browser.runtime.onMessage.addListener(showHoursInfo);
