@@ -3,3 +3,7 @@
 
 # ignore .bak files
 *.bak
+
+# generated xpi files folder
+web-ext-artifacts/
+
