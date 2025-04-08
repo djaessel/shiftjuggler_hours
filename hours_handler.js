@@ -13,8 +13,8 @@ function showHoursInfo(request, sender, sendResponse) {
 
   let workdays = 0;
   for (let i = 0; i < tableRows.length; i++) {
-    if (tableRows[i].children.length > 2) {
-      let resultData = tableRows[i].children[2];
+    if (tableRows[i].children.length >= 2) {
+      let resultData = tableRows[i].children[1];
       if (resultData.children.length > 5) {
         let finalHoursTxt = resultData.children[5].innerHTML;
         let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
@@ -25,9 +25,13 @@ function showHoursInfo(request, sender, sendResponse) {
   }
 
   let averageHours = totalHours / workdays;
+  let expectedHours = workdays * 4;
+
+  // TODO: add not confirmed hours, if needed!
 
   let message =
     "You have " + strip(totalHours.toFixed(3)) + " hours in total" +
+    " | Expected " + expectedHours.toString() + " hours" +
     " | " + workdays.toString() + " days" +
     " | " + strip(averageHours.toFixed(3)) + " hours in average";
 
@@ -38,7 +42,7 @@ function showHoursInfo(request, sender, sendResponse) {
   let hourE = document.getElementById('shiftjuggler-hours-id');
   if (!hourE) {
     let hourContainer = document.createElement('div');
-    hourContainer.setAttribute("class", "col-md-4");
+    hourContainer.setAttribute("class", "col-md-8");
 
     let hourInfoElement = document.createElement('h2');
     hourInfoElement.setAttribute("id", "shiftjuggler-hours-id");

@@ -2,9 +2,9 @@
     "manifest_version": 2,
     "name": "ShiftJuggler Current Hours",
     "description": "Counts all hours for the current ShiftJuggler timespan.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "icons": {
-      "64": "icons/shiftjuggler_hours.png"
+      "512": "icons/shiftjuggler_hours.png"
     },
     "background": {
       "scripts": ["hours_script.js"]
@@ -26,7 +26,7 @@
     "content_scripts": [],
     "browser_action": {
       "default_icon": {
-        "64": "icons/shiftjuggler_hours.png"
+        "512": "icons/shiftjuggler_hours.png"
       }
     }
 }
