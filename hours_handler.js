@@ -21,13 +21,29 @@ function showHoursInfo(request, sender, sendResponse) {
         totalHours += finalHours;
         workdays += 1;
       }
+    } else if (tableRows[i].children.length == 1) {
+      let resultData = tableRows[i].children[0];
+      if (resultData.children.length > 5) {
+        let infoText = resultData.children[8].innerHTML;
+        if (infoText.includes("gemeldet")) {
+          for (var xyy = 0; xyy < resultData.children.length; xyy++) {
+            console.log(resultData.children[xyy].innerHTML)
+          }
+          let finalHoursTxt = resultData.children[7].innerHTML;
+          finalHoursTxt = finalHoursTxt.replace('<span>', '')
+          finalHoursTxt = finalHoursTxt.replace('</span>', '')
+          let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
+          console.log("FINAL_HOURS:")
+          console.log(finalHours)
+          totalHours += finalHours;
+          workdays += 1;
+        }
+      }
     }
   }
 
   let averageHours = totalHours / workdays;
   let expectedHours = workdays * 4;
-
-  // TODO: add not confirmed hours, if needed!
 
   let message =
     "You have " + strip(totalHours.toFixed(3)) + " hours in total" +
