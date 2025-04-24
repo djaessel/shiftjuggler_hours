@@ -1,11 +1,15 @@
 
-function strip(string) {
-  return string.replace(/[0.,]+$/g, '');
+function rtrimChar(string, charToRemove) {
+  while(string.charAt(string.length-1)==charToRemove) {
+      string = string.substring(0,string.length-1);
+  }
+
+  return string;
 }
 
 function showHoursInfo(request, sender, sendResponse) {
   let totalHours = 0.0;
-  let tables = document.getElementsByTagName('table');
+  //let tables = document.getElementsByTagName('table');
   let tableRows = document.getElementsByTagName('tbody');
 
   // extensions.sdk.console.logLevel = all // about:config
@@ -46,14 +50,16 @@ function showHoursInfo(request, sender, sendResponse) {
     }
   }
 
+  // TODO: add check for time and multiple entries per day!
+
   let averageHours = totalHours / workdays;
   let expectedHours = workdays * 4;
 
   let message =
-    "You have " + strip(totalHours.toFixed(3)) + " hours in total" +
+    "You have " + rtrimChar(rtrimChar(totalHours.toFixed(3), "0"), ".") + " hours in total" +
     " | Expected " + expectedHours.toString() + " hours" +
     " | " + workdays.toString() + " days" +
-    " | " + strip(averageHours.toFixed(3)) + " hours in average";
+    " | " + rtrimChar(rtrimChar(averageHours.toFixed(3), "0"), ".") + " hours in average";
 
   let viewItemCreateButton = document.getElementById('view-item-create-button');
   viewItemCreateButton.style.position = 'relative';
