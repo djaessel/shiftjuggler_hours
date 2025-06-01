@@ -7,15 +7,52 @@ function rtrimChar(string, charToRemove) {
   return string;
 }
 
+function onError(error) {
+  console.log(`Error: ${error}`);
+}
+
+function onGot(item) {
+  let xy = JSON.parse(JSON.stringify(item));
+  if ("hoursPerDay" in xy) {
+    var workingHours = xy["hoursPerDay"];
+    let vv = document.getElementById('view-item-create-button')
+    vv.setAttribute("data-hours", workingHours);
+  } else if ("moneyPerMonth" in xy) {
+    var moneyPerMonth = xy["moneyPerMonth"];
+    let vv = document.getElementById('view-item-create-button')
+    vv.setAttribute("data-money", moneyPerMonth);
+  }
+}
+
+const hoursPerDayx = browser.storage.sync.get("hoursPerDay");
+hoursPerDayx.then(onGot, onError);
+
+const moneyPerMonth = browser.storage.sync.get("moneyPerMonth");
+moneyPerMonth.then(onGot, onError);
+
+
+function createMessageText(totalHours, expectedHours, workdays, averageHours, totalMoney) {
+  let message =
+    "You have " + rtrimChar(rtrimChar(totalHours.toFixed(3), "0"), ".") + " hours in total" +
+    " | Expected " + expectedHours.toString() + " hours" +
+    " | " + workdays.toString() + " days" +
+    " | " + rtrimChar(rtrimChar(averageHours.toFixed(3), "0"), ".") + " hours in average" +
+    " | " + rtrimChar(rtrimChar(totalMoney.toFixed(2), "0"), ".") + " € per Month"
+  ;
+  return message;
+}
+
+const getDaysInMonth = (month, year) => (new Array(31)).fill('').map((v,i)=>new Date(year,month-1,i+1)).filter(v=>v.getMonth()===month-1)
+
+
 function showHoursInfo(request, sender, sendResponse) {
+  let workdays = 0;
   let totalHours = 0.0;
-  //let tables = document.getElementsByTagName('table');
   let tableRows = document.getElementsByTagName('tbody');
 
   // extensions.sdk.console.logLevel = all // about:config
   // xpinstall.signatures.required = false // about:config
 
-  let workdays = 0;
   for (let i = 0; i < tableRows.length; i++) {
     if (tableRows[i].children.length >= 2) {
       let resultData = tableRows[i].children[1];
@@ -24,11 +61,12 @@ function showHoursInfo(request, sender, sendResponse) {
         let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
         totalHours += finalHours;
 
-        let mySubmittedData = tableRows[i].children[0];
-        let dayInfoText = mySubmittedData.children[0].innerHTML;
-        if (!(dayInfoText.includes(" - Sa") || dayInfoText.includes(" - So"))) {
-          workdays += 1;
-        }
+        // Old workdays logic deactivated
+        //let mySubmittedData = tableRows[i].children[0];
+        //let dayInfoText = mySubmittedData.children[0].innerHTML;
+        //if (!(dayInfoText.includes(" - Sa") || dayInfoText.includes(" - So"))) {
+        //  workdays += 1;
+        //}
       }
     } else if (tableRows[i].children.length == 1) {
       let resultData = tableRows[i].children[0];
@@ -41,10 +79,11 @@ function showHoursInfo(request, sender, sendResponse) {
           let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
           totalHours += finalHours;
 
-          let dayInfoText = resultData.children[0].innerHTML;
-          if (!(dayInfoText.includes(" - Sa") || dayInfoText.includes(" - So"))) {
-            workdays += 1;
-          }
+          // Old workdays logic deactivated
+          //let dayInfoText = resultData.children[0].innerHTML;
+          //if (!(dayInfoText.includes(" - Sa") || dayInfoText.includes(" - So"))) {
+          //  workdays += 1;
+          //}
         }
       }
     }
@@ -52,14 +91,34 @@ function showHoursInfo(request, sender, sendResponse) {
 
   // TODO: add check for time and multiple entries per day!
 
-  let averageHours = totalHours / workdays;
-  let expectedHours = workdays * 4;
+  let dataElementX = document.getElementById('view-item-create-button');
+  let hoursPerDay = parseFloat(dataElementX.getAttribute("data-hours"));
+  let moneyPerMonth = parseFloat(dataElementX.getAttribute("data-money"));
 
-  let message =
-    "You have " + rtrimChar(rtrimChar(totalHours.toFixed(3), "0"), ".") + " hours in total" +
-    " | Expected " + expectedHours.toString() + " hours" +
-    " | " + workdays.toString() + " days" +
-    " | " + rtrimChar(rtrimChar(averageHours.toFixed(3), "0"), ".") + " hours in average";
+  // TODO: check for holidays
+  // https://feiertage-api.de/api/
+  /*try {
+    //let jsonDateData = httpGet("https://feiertage-api.de/api/");
+    let jsonDateData = readHolidaysFile()
+    let holidays = JSON.parse(jsonDateData);
+    console.log(holidays);
+  } catch (e) {
+    console.log(e);
+  }*/
+
+  let nowDateTime = new Date();
+  let daysOfMonth = getDaysInMonth(nowDateTime.getMonth(), nowDateTime.getFullYear());
+  var options = { weekday: 'short' };
+  daysOfMonth.forEach(element => {
+    let dateShort = element.toLocaleDateString("de-DE", options);
+    if (dateShort[0] != 'S') {
+      workdays += 1;
+    }
+  });
+
+  let averageHours = totalHours / workdays;
+  let expectedHours = workdays * hoursPerDay;
+  let totalMoney = moneyPerMonth / expectedHours * totalHours;
 
   let viewItemCreateButton = document.getElementById('view-item-create-button');
   viewItemCreateButton.style.position = 'relative';
@@ -73,13 +132,12 @@ function showHoursInfo(request, sender, sendResponse) {
     let hourInfoElement = document.createElement('h2');
     hourInfoElement.setAttribute("id", "shiftjuggler-hours-id");
     hourInfoElement.style = "margin-top: 10px;";
-    //hourInfoElement.textContent = request.replacement;
-    hourInfoElement.textContent = message;
+    hourInfoElement.textContent = createMessageText(totalHours, expectedHours, workdays, averageHours, totalMoney);
     hourContainer.appendChild(hourInfoElement);
 
     viewItemCreateButton.parentNode.appendChild(hourContainer);
   } else {
-    hourE.textContent = message;
+    hourE.textContent = createMessageText(totalHours, expectedHours, workdays, averageHours, totalMoney);
   }
 }
 
