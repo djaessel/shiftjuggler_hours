@@ -2,6 +2,7 @@ function saveOptions(e) {
   e.preventDefault();
   browser.storage.sync.set({
     hoursPerDay: parseFloat(document.querySelector("#hoursPerDay").value),
+    hoursPerMonth: parseFloat(document.querySelector("#hoursPerMonth").value),
     moneyPerMonth: parseFloat(document.querySelector("#moneyPerMonth").value),
   });
 }

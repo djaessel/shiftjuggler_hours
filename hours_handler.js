@@ -18,9 +18,9 @@ function onGot(item) {
     let vv = document.getElementById('view-item-create-button')
     vv.setAttribute("data-hours", workingHours);
   } else if ("hoursPerMonth" in xy) {
-    var workingHours = xy["hoursPerMonth"];
+    var hoursMonth = xy["hoursPerMonth"];
     let vv = document.getElementById('view-item-create-button')
-    vv.setAttribute("data-monthhours", workingHours);
+    vv.setAttribute("data-mhours", hoursMonth);
   } else if ("moneyPerMonth" in xy) {
     var moneyPerMonth = xy["moneyPerMonth"];
     let vv = document.getElementById('view-item-create-button')
@@ -38,11 +38,16 @@ const moneyPerMonth = browser.storage.sync.get("moneyPerMonth");
 moneyPerMonth.then(onGot, onError);
 
 
-function createMessageText(totalHours, expectedHours, workdays, averageHours, totalMoney) {
+function createMessageText(totalHours, expectedHoursTotal, workdaysTotal, averageHours, totalMoney, expectedHoursSoFar) {
+  let workedHours = rtrimChar(rtrimChar(totalHours.toFixed(3), "0"), ".");
+  let expectedHours = rtrimChar(rtrimChar(expectedHoursSoFar.toFixed(3), "0"), ".");
+  let missingHoursFloat = expectedHoursSoFar - totalHours;
+  let missingHours = rtrimChar(rtrimChar(missingHoursFloat.toFixed(3), "0"), ".");
   let message =
-    "You have " + rtrimChar(rtrimChar(totalHours.toFixed(3), "0"), ".") + " hours in total" +
-    " | Expected " + expectedHours.toString() + " hours" +
-    " | " + workdays.toString() + " days" +
+    "You have " + workedHours + " / " + expectedHours + " hours" +
+    " | " + missingHours + " hours missing" +
+    " | Expected Total " + expectedHoursTotal.toString() + " hours" +
+    " | " + workdaysTotal.toString() + " days" +
     " | " + rtrimChar(rtrimChar(averageHours.toFixed(3), "0"), ".") + " hours in average" +
     " | " + rtrimChar(rtrimChar(totalMoney.toFixed(2), "0"), ".") + " € per Month"
   ;
@@ -53,7 +58,7 @@ const getDaysInMonth = (month, year) => (new Array(31)).fill('').map((v,i)=>new 
 
 
 function showHoursInfo(request, sender, sendResponse) {
-  let workdays = 0;
+  let workdaysTotal = 0;
   let totalHours = 0.0;
   let tableRows = document.getElementsByTagName('tbody');
 
@@ -68,11 +73,11 @@ function showHoursInfo(request, sender, sendResponse) {
         let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
         totalHours += finalHours;
 
-        // Old workdays logic deactivated
+        // Old workdaysTotal logic deactivated
         //let mySubmittedData = tableRows[i].children[0];
         //let dayInfoText = mySubmittedData.children[0].innerHTML;
         //if (!(dayInfoText.includes(" - Sa") || dayInfoText.includes(" - So"))) {
-        //  workdays += 1;
+        //  workdaysTotal += 1;
         //}
       }
     } else if (tableRows[i].children.length == 1) {
@@ -86,10 +91,10 @@ function showHoursInfo(request, sender, sendResponse) {
           let finalHours = parseFloat(finalHoursTxt.replace(',', '.'));
           totalHours += finalHours;
 
-          // Old workdays logic deactivated
+          // Old workdaysTotal logic deactivated
           //let dayInfoText = resultData.children[0].innerHTML;
           //if (!(dayInfoText.includes(" - Sa") || dayInfoText.includes(" - So"))) {
-          //  workdays += 1;
+          //  workdaysTotal += 1;
           //}
         }
       }
@@ -100,7 +105,7 @@ function showHoursInfo(request, sender, sendResponse) {
 
   let dataElementX = document.getElementById('view-item-create-button');
   let hoursPerDay = parseFloat(dataElementX.getAttribute("data-hours"));
-  let hoursPerMonth = parseFloat(dataElementX.getAttribute("data-monthhours"));
+  let hoursPerMonth = parseFloat(dataElementX.getAttribute("data-mhours"));
   let moneyPerMonth = parseFloat(dataElementX.getAttribute("data-money"));
 
   // TODO: check for holidays
@@ -114,24 +119,29 @@ function showHoursInfo(request, sender, sendResponse) {
     console.log(e);
   }*/
 
+  let workdaysSoFar = 0;
   let nowDateTime = new Date();
   let daysOfMonth = getDaysInMonth(nowDateTime.getMonth(), nowDateTime.getFullYear());
   var options = { weekday: 'short' };
   daysOfMonth.forEach(element => {
     let dateShort = element.toLocaleDateString("de-DE", options);
     if (dateShort[0] != 'S') {
-      workdays += 1;
+      workdaysTotal += 1;
+      if (element.getDate() <= nowDateTime.getDate()) {
+        workdaysSoFar += 1;
+      }
     }
   });
 
-  let averageHours = totalHours / workdays;
-  let expectedHours = 0.0;
+  let averageHours = totalHours / workdaysTotal;
+  let expectedHoursTotal = 0.0;
   if (hoursPerMonth > 0) {
-    expectedHours = hoursPerMonth / workdays;
+    expectedHoursTotal = hoursPerMonth;
   } else {
-    expectedHours = workdays * hoursPerDay;
+    expectedHoursTotal = workdaysTotal * hoursPerDay;
   }
-  let totalMoney = moneyPerMonth / expectedHours * totalHours;
+  let totalMoney = moneyPerMonth / expectedHoursTotal * totalHours;
+  let expectedHoursSoFar = expectedHoursTotal / workdaysTotal * workdaysSoFar;
 
   let viewItemCreateButton = document.getElementById('view-item-create-button');
   viewItemCreateButton.style.position = 'relative';
@@ -145,12 +155,12 @@ function showHoursInfo(request, sender, sendResponse) {
     let hourInfoElement = document.createElement('h2');
     hourInfoElement.setAttribute("id", "shiftjuggler-hours-id");
     hourInfoElement.style = "margin-top: 10px;";
-    hourInfoElement.textContent = createMessageText(totalHours, expectedHours, workdays, averageHours, totalMoney);
+    hourInfoElement.textContent = createMessageText(totalHours, expectedHoursTotal, workdaysTotal, averageHours, totalMoney, expectedHoursSoFar);
     hourContainer.appendChild(hourInfoElement);
 
     viewItemCreateButton.parentNode.appendChild(hourContainer);
   } else {
-    hourE.textContent = createMessageText(totalHours, expectedHours, workdays, averageHours, totalMoney);
+    hourE.textContent = createMessageText(totalHours, expectedHoursTotal, workdaysTotal, averageHours, totalMoney, expectedHoursSoFar);
   }
 }
 
