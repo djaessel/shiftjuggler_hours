@@ -8,8 +8,9 @@ function saveOptions(e) {
 
 function restoreOptions() {
   function setCurrentChoice(result) {
-    document.querySelector("#hoursPerDay").value = parseFloat(result.hoursPerDay) || 4.0; // h
-    document.querySelector("#moneyPerMonth").value = parseFloat(result.moneyPerHour) || 1600; // €
+    document.querySelector("#hoursPerDay").value = parseFloat(result.hoursPerDay) || 0; // h
+    document.querySelector("#hoursPerMonth").value = parseFloat(result.hoursPerMonth) || 0; // h
+    document.querySelector("#moneyPerMonth").value = parseFloat(result.moneyPerHour) || 0; // €
   }
 
   function onError(error) {
@@ -18,6 +19,9 @@ function restoreOptions() {
 
   let hoursPerDay = browser.storage.sync.get("hoursPerDay");
   hoursPerDay.then(setCurrentChoice, onError);
+
+  let hoursPerMonth = browser.storage.sync.get("hoursPerMonth");
+  hoursPerMonth.then(setCurrentChoice, onError);
 
   let moneyPerMonth = browser.storage.sync.get("moneyPerMonth");
   moneyPerMonth.then(setCurrentChoice, onError);

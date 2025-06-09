@@ -17,6 +17,10 @@ function onGot(item) {
     var workingHours = xy["hoursPerDay"];
     let vv = document.getElementById('view-item-create-button')
     vv.setAttribute("data-hours", workingHours);
+  } else if ("hoursPerMonth" in xy) {
+    var workingHours = xy["hoursPerMonth"];
+    let vv = document.getElementById('view-item-create-button')
+    vv.setAttribute("data-monthhours", workingHours);
   } else if ("moneyPerMonth" in xy) {
     var moneyPerMonth = xy["moneyPerMonth"];
     let vv = document.getElementById('view-item-create-button')
@@ -26,6 +30,9 @@ function onGot(item) {
 
 const hoursPerDayx = browser.storage.sync.get("hoursPerDay");
 hoursPerDayx.then(onGot, onError);
+
+const hoursPerMonthx = browser.storage.sync.get("hoursPerMonth");
+hoursPerMonthx.then(onGot, onError);
 
 const moneyPerMonth = browser.storage.sync.get("moneyPerMonth");
 moneyPerMonth.then(onGot, onError);
@@ -93,6 +100,7 @@ function showHoursInfo(request, sender, sendResponse) {
 
   let dataElementX = document.getElementById('view-item-create-button');
   let hoursPerDay = parseFloat(dataElementX.getAttribute("data-hours"));
+  let hoursPerMonth = parseFloat(dataElementX.getAttribute("data-monthhours"));
   let moneyPerMonth = parseFloat(dataElementX.getAttribute("data-money"));
 
   // TODO: check for holidays
@@ -115,6 +123,10 @@ function showHoursInfo(request, sender, sendResponse) {
       workdays += 1;
     }
   });
+
+  if (hoursPerMonth > 0) {
+    hoursPerDay = hoursPerMonth / workdays;
+  }
 
   let averageHours = totalHours / workdays;
   let expectedHours = workdays * hoursPerDay;
