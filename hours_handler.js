@@ -124,12 +124,13 @@ function showHoursInfo(request, sender, sendResponse) {
     }
   });
 
-  if (hoursPerMonth > 0) {
-    hoursPerDay = hoursPerMonth / workdays;
-  }
-
   let averageHours = totalHours / workdays;
-  let expectedHours = workdays * hoursPerDay;
+  let expectedHours = 0.0;
+  if (hoursPerMonth > 0) {
+    expectedHours = hoursPerMonth / workdays;
+  } else {
+    expectedHours = workdays * hoursPerDay;
+  }
   let totalMoney = moneyPerMonth / expectedHours * totalHours;
 
   let viewItemCreateButton = document.getElementById('view-item-create-button');
